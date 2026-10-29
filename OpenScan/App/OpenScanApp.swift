@@ -1,0 +1,26 @@
+import SwiftUI
+
+@main
+struct OpenScanApp: App {
+    @State private var session = ScanSession()
+    @State private var store = ScanStore()
+
+    var body: some Scene {
+        WindowGroup {
+            RootView()
+                .environment(session)
+                .environment(store)
+        }
+    }
+}
+
+struct RootView: View {
+    var body: some View {
+        TabView {
+            ScanView()
+                .tabItem { Label("Scan", systemImage: "camera.metering.matrix") }
+            LibraryView()
+                .tabItem { Label("Library", systemImage: "cube.transparent") }
+        }
+    }
+}

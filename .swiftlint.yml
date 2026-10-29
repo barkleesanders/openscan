@@ -1,0 +1,5 @@
+included: [OpenScan, Tests]
+identifier_name:
+  min_length: 1
+  excluded: [id]
+line_length: 140

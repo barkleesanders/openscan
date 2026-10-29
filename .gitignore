@@ -1,0 +1,8 @@
+OpenScan.xcodeproj/xcuserdata/
+xcuserdata/
+DerivedData/
+build/
+.DS_Store
+*.xcresult
+*.ipa
+.build/
