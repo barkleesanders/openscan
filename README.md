@@ -30,9 +30,15 @@ live capture only works on a physical LiDAR device — the simulator shows an un
 
 ## Export notes
 
-- USDZ is written as a single hand-built USDA scene in an uncompressed, 64-byte-aligned archive
-  (ModelIO cannot write `.usdz`). Output passes Apple's `usdchecker`.
+- USDZ is written as a single USDA scene in an uncompressed, 64-byte-aligned archive.
+  A synthetic triangle exported by these serializers passes Apple's installed `usdchecker`;
+  this does not establish validity or accuracy for every captured scene.
 - Scene units are meters, Y-up (ARKit world frame).
+
+See [reference capabilities and architecture](docs/reference-and-architecture.md) for
+the public reference comparison, implementation limits, verification evidence, and
+current distribution constraints. OpenScan is an early implementation; advanced
+surveying, registration, texturing, and measurement workflows are not yet present.
 
 ## Roadmap
 
