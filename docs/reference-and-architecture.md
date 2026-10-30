@@ -30,7 +30,7 @@ The comparison uses public product descriptions and original source written for 
 | Measurements and volume | No point selection, saved dimensions, or volume computation. Library dimensions describe the bounding box only. |
 | Annotations and photos | No spatial annotation or image attachment model. |
 | Cropping and hiding | No mesh selection/editing tools. |
-| Color point-cloud formats | PLY contains classification colors on faces; these are not camera RGB. OBJ and USDZ mesh exports are available. No DP/E57/LAS/LAZ/PTS/PTX/PTG serializers. |
+| Color point-cloud formats | Since `e7fd466`, camera RGB is projected from ARFrames onto mesh vertices (`ColorAccumulator`, spatial-hash keyed so it survives ARKit re-meshing) and written per vertex in PLY, OBJ (`v x y z r g b`) and USDZ. Vertices the camera never saw are neutral gray; scans with no camera color fall back to classification colors on PLY faces. The projection math and exporters are unit-tested; color quality on a real LiDAR device is unverified. No UV texture atlas. No DP/E57/LAS/LAZ/PTS/PTX/PTG serializers. |
 | Orthophotos and BIM integrations | No image projection, georeferencing, or service connector. |
 | Frame exports for reconstruction tools | No synchronized RGB/depth/camera-pose dataset export. |
 | Viewing on devices without LiDAR | Local saved USDZ files use Quick Look. Importing another device's scan into the library is not implemented. |
@@ -67,6 +67,16 @@ Candidate `a5de651b14db6c7c3ff5453518b9bd764bd7641d`:
   settled. A simulator cannot prove LiDAR behavior.
 - Privacy preflight reported GREENLIT. A Release archive succeeded, signed for
   development. Neither result proves distribution readiness.
+
+Candidate `e7fd466` (per-vertex camera color):
+
+- Simulator tests: 31 passed, including camera projection (axis conventions with hand-computed
+  pixels), BT.601 conversion, color-grid best-sample/drift behavior, and colored PLY/OBJ/USDA output.
+- A deliberate Y-axis flip in `CameraProjector` made `testAboveCameraLandsAboveCenterBecauseImageYPointsDown`
+  fail (600 vs 200), so the projection tests can detect that defect.
+- Apple's `usdchecker` returned `Success!` on a vertex-colored USDZ fixture.
+- Not verified: `ColorAccumulator` against a live `ARFrame`, color alignment with the real camera,
+  and throughput on a long scan. These need a physical LiDAR device.
 
 ## Distribution constraints
 
