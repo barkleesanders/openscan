@@ -4,12 +4,14 @@ import SwiftUI
 struct OpenScanApp: App {
     @State private var session = ScanSession()
     @State private var store = ScanStore()
+    @State private var measure = MeasureState()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(session)
                 .environment(store)
+                .environment(measure)
         }
     }
 }

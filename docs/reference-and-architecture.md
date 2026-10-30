@@ -27,7 +27,7 @@ The comparison uses public product descriptions and original source written for 
 | Reference targets | No coded targets, scale calibration, or survey control. |
 | GNSS and coordinate systems | No receiver integration; exports use ARKit's local frame in meters, Y-up. |
 | Appending scans | No persisted world map or cross-session registration. Pause/resume is within the current session. |
-| Measurements and volume | No point selection, saved dimensions, or volume computation. Library dimensions describe the bounding box only. |
+| Measurements and volume | Live tap-to-measure during a scan: tap points onto the mesh (ARKit raycast) for a two-point distance, or three or more for polygon area and perimeter, with undo/clear. Metric or imperial by locale. Geometry and formatting are unit-tested; the raycast and marker overlay are unverified on a live scan. Measurements are not saved with a scan, there is no volume computation, and library dimensions are still the bounding box. |
 | Annotations and photos | No spatial annotation or image attachment model. |
 | Cropping and hiding | No mesh selection/editing tools. |
 | Color point-cloud formats | Since `e7fd466`, camera RGB is projected from ARFrames onto mesh vertices (`ColorAccumulator`, spatial-hash keyed so it survives ARKit re-meshing) and written per vertex in PLY, OBJ (`v x y z r g b`) and USDZ. Vertices the camera never saw are neutral gray; scans with no camera color fall back to classification colors on PLY faces. The projection math and exporters are unit-tested; color quality on a real LiDAR device is unverified. No UV texture atlas. No DP/E57/LAS/LAZ/PTS/PTX/PTG serializers. |

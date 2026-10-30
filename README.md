@@ -9,6 +9,7 @@ it is written from scratch on Apple's public ARKit scene-reconstruction API.
 
 - Live LiDAR mesh capture with on-screen mesh overlay
 - Per-vertex camera color (projected from ARFrames, survives re-meshing)
+- Tap-to-measure: distance, polygon area and perimeter on the live mesh
 - Wall / floor / ceiling / table / seat / window / door classification
 - Library with rename, delete, Quick Look 3D preview
 - Export **PLY** (binary, classification colors), **OBJ**, **USDZ**
@@ -45,7 +46,6 @@ surveying, registration, texturing, and measurement workflows are not yet presen
 
 - Per-vertex color is captured from camera frames (needs on-device validation); next: UV texture atlas
 - Binary USDC for smaller files
-- Measurement tools
 
 ## License
 

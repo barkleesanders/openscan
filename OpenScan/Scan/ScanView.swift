@@ -3,6 +3,7 @@ import SwiftUI
 struct ScanView: View {
     @Environment(ScanSession.self) private var session
     @Environment(ScanStore.self) private var store
+    @Environment(MeasureState.self) private var measure
 
     @State private var pendingMesh: ScanMesh?
     @State private var name = ""
@@ -12,7 +13,7 @@ struct ScanView: View {
     var body: some View {
         ZStack {
             if ScanSession.isSupported {
-                LiveARView(session: session)
+                LiveARView(session: session, measure: measure)
                     .ignoresSafeArea()
                     .overlay(alignment: .top) { hud }
                     .overlay(alignment: .bottom) { controls }
@@ -25,7 +26,7 @@ struct ScanView: View {
                                                  set: { if !$0 { pendingMesh = nil } })) {
             TextField("Name", text: $name)
             Button("Save") { save() }
-            Button("Discard", role: .destructive) { pendingMesh = nil; session.reset() }
+            Button("Discard", role: .destructive) { pendingMesh = nil; session.reset(); measure.clear() }
             Button("Keep scanning", role: .cancel) { pendingMesh = nil }
         }
         .alert("Couldn't save", isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } })) {
@@ -39,6 +40,14 @@ struct ScanView: View {
                 .font(.headline.monospacedDigit())
                 .padding(.horizontal, 14).padding(.vertical, 8)
                 .background(.ultraThinMaterial, in: Capsule())
+            if let readout = measure.summary {
+                Text(readout)
+                    .font(.title3.weight(.semibold).monospacedDigit())
+                    .foregroundStyle(.yellow)
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .accessibilityLabel("Measurement \(readout)")
+            }
             if let message = session.trackingMessage, session.state == .scanning {
                 Text(message)
                     .font(.subheadline)
@@ -52,7 +61,22 @@ struct ScanView: View {
 
     private var controls: some View {
         HStack(spacing: 28) {
-            Button { session.reset() } label: {
+            Button { measure.toggle() } label: {
+                Image(systemName: measure.isActive ? "ruler.fill" : "ruler").frame(width: 44, height: 44)
+            }
+            .foregroundStyle(measure.isActive ? Color.yellow : Color.white)
+            .disabled(session.state != .scanning && !measure.isActive)
+            .accessibilityLabel(measure.isActive ? "Stop measuring" : "Measure")
+
+            if measure.isActive {
+                Button { measure.undo() } label: {
+                    Image(systemName: "arrow.uturn.backward").frame(width: 44, height: 44)
+                }
+                .disabled(measure.points.isEmpty)
+                .accessibilityLabel("Undo point")
+            }
+
+            Button { session.reset(); measure.clear() } label: {
                 Image(systemName: "arrow.counterclockwise").frame(width: 44, height: 44)
             }
             .disabled(session.state == .idle)
@@ -109,7 +133,7 @@ struct ScanView: View {
             do {
                 try await store.save(mesh, name: name.isEmpty ? "Scan" : name)
                 UINotificationFeedbackGenerator().notificationOccurred(.success)
-                session.reset()
+                session.reset(); measure.clear()
             } catch {
                 errorMessage = error.localizedDescription
             }
