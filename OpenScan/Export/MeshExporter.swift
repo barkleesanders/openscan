@@ -20,6 +20,8 @@ enum MeshExporter {
         guard !mesh.isEmpty else { throw MeshExportError.emptyMesh }
         let m = mesh.merged()
         let faceCount = m.triangleCount
+        let hasVertexColor = !m.vertexColors.isEmpty
+        let faceColors = classificationColors && !hasVertexColor
         var header = """
         ply
         format binary_little_endian 1.0
@@ -31,26 +33,29 @@ enum MeshExporter {
         property float nx
         property float ny
         property float nz
-        element face \(faceCount)
-        property list uchar uint vertex_indices
 
         """
-        if classificationColors {
+        if hasVertexColor {
+            header += "property uchar red\nproperty uchar green\nproperty uchar blue\n"
+        }
+        header += "element face \(faceCount)\nproperty list uchar uint vertex_indices\n"
+        if faceColors {
             header += "property uchar red\nproperty uchar green\nproperty uchar blue\n"
         }
         header += "end_header\n"
 
         var data = Data(header.utf8)
-        data.reserveCapacity(data.count + m.positions.count * 24 + faceCount * (13 + 3))
+        data.reserveCapacity(data.count + m.positions.count * 27 + faceCount * (13 + 3))
 
         for i in 0..<m.positions.count {
             let p = m.positions[i], n = m.normals[i]
             for f in [p.x, p.y, p.z, n.x, n.y, n.z] { append(&data, f.bitPattern.littleEndian) }
+            if hasVertexColor { data.append(contentsOf: m.vertexColors[(i * 3)..<(i * 3 + 3)]) }
         }
         for t in 0..<faceCount {
             data.append(3)
             for k in 0..<3 { append(&data, m.indices[t * 3 + k].littleEndian) }
-            if classificationColors {
+            if faceColors {
                 let c = ClassificationPalette.rgb(for: t < m.faceClasses.count ? m.faceClasses[t] : 0)
                 data.append(contentsOf: [c.0, c.1, c.2])
             }
@@ -65,7 +70,18 @@ enum MeshExporter {
         let m = mesh.merged()
         var out = "# OpenScan\n"
         out.reserveCapacity(m.positions.count * 48 + m.triangleCount * 24)
-        for p in m.positions { out += "v \(p.x) \(p.y) \(p.z)\n" }
+        let hasColor = !m.vertexColors.isEmpty
+        for (i, p) in m.positions.enumerated() {
+            if hasColor {
+                // "v x y z r g b" (0-1) is read by MeshLab, Blender and CloudCompare.
+                let r = Float(m.vertexColors[i * 3]) / 255
+                let g = Float(m.vertexColors[i * 3 + 1]) / 255
+                let b = Float(m.vertexColors[i * 3 + 2]) / 255
+                out += "v \(p.x) \(p.y) \(p.z) \(r) \(g) \(b)\n"
+            } else {
+                out += "v \(p.x) \(p.y) \(p.z)\n"
+            }
+        }
         for n in m.normals { out += "vn \(n.x) \(n.y) \(n.z)\n" }
         for t in 0..<m.triangleCount {
             let a = m.indices[t * 3] + 1, b = m.indices[t * 3 + 1] + 1, c = m.indices[t * 3 + 2] + 1
@@ -82,10 +98,20 @@ enum MeshExporter {
         let m = mesh.merged()
         func v3(_ v: SIMD3<Float>) -> String { "(\(v.x), \(v.y), \(v.z))" }
         let b = mesh.bounds!
-        let colors = (0..<m.triangleCount).map { t -> String in
-            let c = ClassificationPalette.rgb(for: t < m.faceClasses.count ? m.faceClasses[t] : 0)
-            return "(\(Float(c.0) / 255), \(Float(c.1) / 255), \(Float(c.2) / 255))"
+        let perVertex = !m.vertexColors.isEmpty
+        let colors: [String]
+        if perVertex {
+            colors = (0..<m.positions.count).map { i in
+                "(\(Float(m.vertexColors[i * 3]) / 255), \(Float(m.vertexColors[i * 3 + 1]) / 255), "
+                    + "\(Float(m.vertexColors[i * 3 + 2]) / 255))"
+            }
+        } else {
+            colors = (0..<m.triangleCount).map { t in
+                let c = ClassificationPalette.rgb(for: t < m.faceClasses.count ? m.faceClasses[t] : 0)
+                return "(\(Float(c.0) / 255), \(Float(c.1) / 255), \(Float(c.2) / 255))"
+            }
         }
+        let colorInterpolation = perVertex ? "vertex" : "uniform"
 
         let out = """
         #usda 1.0
@@ -111,7 +137,7 @@ enum MeshExporter {
                     interpolation = "vertex"
                 )
                 color3f[] primvars:displayColor = [\(colors.joined(separator: ", "))] (
-                    interpolation = "uniform"
+                    interpolation = "\(colorInterpolation)"
                 )
                 rel material:binding = </Scan/Materials/Scan>
             }

@@ -14,6 +14,7 @@ final class ScanSession: NSObject, ARSessionDelegate {
     private(set) var trackingMessage: String?
 
     private var anchors: [UUID: ARMeshAnchor] = [:]
+    private let colorizer = ColorAccumulator()
 
     static var isSupported: Bool {
         ARWorldTrackingConfiguration.isSupported
@@ -34,7 +35,7 @@ final class ScanSession: NSObject, ARSessionDelegate {
         config.environmentTexturing = .none
         config.frameSemantics.insert(.sceneDepth)
         arSession.run(config, options: state == .paused ? [] : [.resetTracking, .removeExistingAnchors])
-        if state != .paused { anchors.removeAll(); triangleCount = 0 }
+        if state != .paused { anchors.removeAll(); triangleCount = 0; colorizer.reset() }
         state = .scanning
         UIApplication.shared.isIdleTimerDisabled = true
     }
@@ -49,16 +50,35 @@ final class ScanSession: NSObject, ARSessionDelegate {
         arSession.pause()
         anchors.removeAll()
         triangleCount = 0
+        colorizer.reset()
         state = .idle
         UIApplication.shared.isIdleTimerDisabled = false
     }
 
     /// World-space copy of everything scanned so far.
     func snapshot() -> ScanMesh {
-        ScanMesh(chunks: anchors.values.map(Self.chunk(from:)))
+        ScanMesh(chunks: anchors.values.map { chunk in
+            var chunk = Self.chunk(from: chunk)
+            let colors = colorizer.colors(for: chunk.positions)
+            if colors.contains(where: { $0 != nil }) {
+                chunk.vertexColors = colors.flatMap { color -> [UInt8] in
+                    guard let color else { return [UInt8](repeating: ScanMesh.uncoloredGray, count: 3) }
+                    return [color.x, color.y, color.z]
+                }
+            }
+            return chunk
+        })
     }
 
     // MARK: ARSessionDelegate (delivered on the main queue)
+
+    nonisolated func session(_ session: ARSession, didUpdate frame: ARFrame) {
+        guard colorizer.wantsFrame(at: frame.timestamp) else { return }
+        MainActor.assumeIsolated {
+            guard self.state == .scanning, !self.anchors.isEmpty else { return }
+            self.colorizer.integrate(frame: frame, anchors: Array(self.anchors.values))
+        }
+    }
 
     nonisolated func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
         let meshes = anchors.compactMap { $0 as? ARMeshAnchor }
@@ -107,27 +127,13 @@ final class ScanSession: NSObject, ARSessionDelegate {
     private static func chunk(from anchor: ARMeshAnchor) -> MeshChunk {
         let g = anchor.geometry
         let t = anchor.transform
-        let normalMatrix = simd_float3x3(SIMD3(t.columns.0.x, t.columns.0.y, t.columns.0.z),
-                                         SIMD3(t.columns.1.x, t.columns.1.y, t.columns.1.z),
-                                         SIMD3(t.columns.2.x, t.columns.2.y, t.columns.2.z))
 
         let vCount = g.vertices.count
         var positions = [SIMD3<Float>](); positions.reserveCapacity(vCount)
         var normals = [SIMD3<Float>](); normals.reserveCapacity(vCount)
-        let vp = g.vertices.buffer.contents(), vs = g.vertices.stride, vo = g.vertices.offset
-        let np = g.normals.buffer.contents(), ns = g.normals.stride, no = g.normals.offset
         for i in 0..<vCount {
-            let p = vp + vo + i * vs
-            let local = SIMD4<Float>(p.loadUnaligned(fromByteOffset: 0, as: Float.self),
-                                     p.loadUnaligned(fromByteOffset: 4, as: Float.self),
-                                     p.loadUnaligned(fromByteOffset: 8, as: Float.self), 1)
-            let w = t * local
-            positions.append(SIMD3(w.x, w.y, w.z))
-            let n = np + no + i * ns
-            let ln = SIMD3<Float>(n.loadUnaligned(fromByteOffset: 0, as: Float.self),
-                                  n.loadUnaligned(fromByteOffset: 4, as: Float.self),
-                                  n.loadUnaligned(fromByteOffset: 8, as: Float.self))
-            normals.append(simd_normalize(normalMatrix * ln))
+            positions.append(t.transformPoint(g.localVertex(i)))
+            normals.append(t.transformDirection(g.localNormal(i)))
         }
 
         let faces = g.faces

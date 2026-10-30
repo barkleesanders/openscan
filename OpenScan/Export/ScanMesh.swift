@@ -9,6 +9,8 @@ struct MeshChunk: Sendable, Equatable {
     var indices: [UInt32]
     /// One ARMeshClassification raw value per triangle (0 = none).
     var faceClasses: [UInt8]
+    /// Camera color, 3 bytes (r, g, b) per vertex. Empty when the chunk was never colored.
+    var vertexColors: [UInt8] = []
 
     var triangleCount: Int { indices.count / 3 }
 }
@@ -36,12 +38,17 @@ struct ScanMesh: Sendable, Equatable {
         return any ? (lo, hi) : nil
     }
 
+    /// Neutral gray for vertices the camera never saw.
+    static let uncoloredGray: UInt8 = 150
+
     /// Chunks flattened into one vertex/index space.
     func merged() -> MeshChunk {
         var positions: [SIMD3<Float>] = []
         var normals: [SIMD3<Float>] = []
         var indices: [UInt32] = []
         var classes: [UInt8] = []
+        var colors: [UInt8] = []
+        let anyColor = chunks.contains { !$0.vertexColors.isEmpty }
         positions.reserveCapacity(vertexCount)
         normals.reserveCapacity(vertexCount)
         indices.reserveCapacity(triangleCount * 3)
@@ -52,8 +59,14 @@ struct ScanMesh: Sendable, Equatable {
             normals.append(contentsOf: chunk.normals)
             indices.append(contentsOf: chunk.indices.lazy.map { $0 + base })
             classes.append(contentsOf: chunk.faceClasses)
+            if anyColor {
+                colors.append(contentsOf: chunk.vertexColors.isEmpty
+                    ? [UInt8](repeating: Self.uncoloredGray, count: chunk.positions.count * 3)
+                    : chunk.vertexColors)
+            }
         }
-        return MeshChunk(positions: positions, normals: normals, indices: indices, faceClasses: classes)
+        return MeshChunk(positions: positions, normals: normals, indices: indices,
+                         faceClasses: classes, vertexColors: colors)
     }
 }
 

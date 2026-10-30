@@ -13,10 +13,15 @@
 		4B134AD191955FE62445FE2A /* MeshExporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BD2C6C5FBA33F960E47CC56 /* MeshExporterTests.swift */; };
 		6CC5B27A69C5076AC2754EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7EE8B25362EEBB0B0CF03654 /* Assets.xcassets */; };
 		73E7F8A4E259723CC8573BD2 /* ScanMesh.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A6583EDA6336E888A34526 /* ScanMesh.swift */; };
+		76A69A12786D8A6D55BA5C33 /* ARMeshGeometry+Access.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095742505127124F325FAA38 /* ARMeshGeometry+Access.swift */; };
+		8A2A2C277112FF0EB429F56D /* ColorGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A84883B9C0F9B3900640D1A /* ColorGrid.swift */; };
 		8DA26EBCCD31B1CB556EB58D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D4C62EC53A3E4330B236CC57 /* PrivacyInfo.xcprivacy */; };
 		96BA14F71C0F5345874E68F2 /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687DF6F6AA1283388B60F37F /* ScanView.swift */; };
+		ABA4A7CC070C3DF77B193A55 /* ColorCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7D870F700B9D62FF3929EF /* ColorCaptureTests.swift */; };
+		AE0A30BA7795A47EBAA13B41 /* ColorAccumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C614C4EE705C6358D413230A /* ColorAccumulator.swift */; };
 		B8D1311E68DD4BD41421B9CE /* MeshExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD9AD93D94EB3418C37199B /* MeshExporter.swift */; };
 		C44A305829196028F8A3AAF5 /* USDZPackager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2761EC3B30F9F0064D47EBB0 /* USDZPackager.swift */; };
+		D9B37F746ACB6D11DE1F5150 /* CameraProjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C41CE11E3B789E6FB41D0E /* CameraProjector.swift */; };
 		F12E82D780E681D0A1DAEA92 /* ScanSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93CA3640F3C8DDE53FA8CD1 /* ScanSession.swift */; };
 		FA5EECB7BF7AD2B21A0701B2 /* OpenScanApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD473CEBEFE9F72E7442C5B9 /* OpenScanApp.swift */; };
 /* End PBXBuildFile section */
@@ -33,9 +38,12 @@
 
 /* Begin PBXFileReference section */
 		0702DBB9BCE8ACAF6D2FD0B2 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		095742505127124F325FAA38 /* ARMeshGeometry+Access.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ARMeshGeometry+Access.swift"; sourceTree = "<group>"; };
+		1A84883B9C0F9B3900640D1A /* ColorGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorGrid.swift; sourceTree = "<group>"; };
 		25E8FA0BFFFAEC77648FDCC9 /* OpenScanTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = OpenScanTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2761EC3B30F9F0064D47EBB0 /* USDZPackager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USDZPackager.swift; sourceTree = "<group>"; };
 		3C0C548E691E4E5354683AA8 /* OpenScan.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = OpenScan.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E7D870F700B9D62FF3929EF /* ColorCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCaptureTests.swift; sourceTree = "<group>"; };
 		687DF6F6AA1283388B60F37F /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
 		6BD2C6C5FBA33F960E47CC56 /* MeshExporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshExporterTests.swift; sourceTree = "<group>"; };
 		7EE8B25362EEBB0B0CF03654 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -43,6 +51,8 @@
 		B93CA3640F3C8DDE53FA8CD1 /* ScanSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanSession.swift; sourceTree = "<group>"; };
 		BCD821689BAF49A20F9306E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C1DED3EB53BE3EAF538DE90A /* ScanStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanStore.swift; sourceTree = "<group>"; };
+		C614C4EE705C6358D413230A /* ColorAccumulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorAccumulator.swift; sourceTree = "<group>"; };
+		C6C41CE11E3B789E6FB41D0E /* CameraProjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraProjector.swift; sourceTree = "<group>"; };
 		CD473CEBEFE9F72E7442C5B9 /* OpenScanApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenScanApp.swift; sourceTree = "<group>"; };
 		D4C62EC53A3E4330B236CC57 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		DDD9AD93D94EB3418C37199B /* MeshExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshExporter.swift; sourceTree = "<group>"; };
@@ -53,6 +63,7 @@
 		54A725BC1697F1310EFCB37D /* Scan */ = {
 			isa = PBXGroup;
 			children = (
+				095742505127124F325FAA38 /* ARMeshGeometry+Access.swift */,
 				E3629BB2CDB72912133209F1 /* LiveARView.swift */,
 				B93CA3640F3C8DDE53FA8CD1 /* ScanSession.swift */,
 				687DF6F6AA1283388B60F37F /* ScanView.swift */,
@@ -80,9 +91,20 @@
 		9327242C03A166E7CCB81B40 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				5E7D870F700B9D62FF3929EF /* ColorCaptureTests.swift */,
 				6BD2C6C5FBA33F960E47CC56 /* MeshExporterTests.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		A229AB1969E35A5A9D35968D /* Color */ = {
+			isa = PBXGroup;
+			children = (
+				C6C41CE11E3B789E6FB41D0E /* CameraProjector.swift */,
+				C614C4EE705C6358D413230A /* ColorAccumulator.swift */,
+				1A84883B9C0F9B3900640D1A /* ColorGrid.swift */,
+			);
+			path = Color;
 			sourceTree = "<group>";
 		};
 		B1B728FB2C7C85BF04DE6EF0 = {
@@ -98,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				62BB3277988B6B525A20994A /* App */,
+				A229AB1969E35A5A9D35968D /* Color */,
 				E366DE5925C71FDC13AF7AFD /* Export */,
 				C5CD2F2DA674B91263DB5BF7 /* Library */,
 				C2162FC7C5C8629AF4C2B8A6 /* Resources */,
@@ -228,6 +251,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABA4A7CC070C3DF77B193A55 /* ColorCaptureTests.swift in Sources */,
 				4B134AD191955FE62445FE2A /* MeshExporterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -236,6 +260,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				76A69A12786D8A6D55BA5C33 /* ARMeshGeometry+Access.swift in Sources */,
+				D9B37F746ACB6D11DE1F5150 /* CameraProjector.swift in Sources */,
+				AE0A30BA7795A47EBAA13B41 /* ColorAccumulator.swift in Sources */,
+				8A2A2C277112FF0EB429F56D /* ColorGrid.swift in Sources */,
 				1FBCCC77276EC26807AA61CB /* LibraryView.swift in Sources */,
 				25555B609DEBACD1A9E14143 /* LiveARView.swift in Sources */,
 				B8D1311E68DD4BD41421B9CE /* MeshExporter.swift in Sources */,
